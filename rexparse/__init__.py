@@ -9,8 +9,8 @@ from rex import Requirements, Requirement
 from _version import __version__
 
 
-__all__ = ['Requirements', 'Requirement', 'install_requirements',
-           'test_requirements', 'dependency_links']
+__all__ = ['Requirements', 'Requirement', 'install_requires',
+           'tests_require', 'dependency_links', 'version'`]
 
 
 def _check_arg(func):
@@ -26,11 +26,11 @@ def _check_arg(func):
     return wrapped
 
 @_check_arg
-def install_requirements(dist, attr, val):
+def install_requires(dist, attr, val):
     setattr(dist, attr, Requirements(val).install_reqs)
 
 @_check_arg
-def test_requirements(dist, attr, val):
+def tests_require(dist, attr, val):
     setattr(dist, attr, Requirements(val).test_reqs)
 
 @_check_arg
