@@ -1,4 +1,5 @@
 import os
+import re
 
 from functools import wraps
 
@@ -10,7 +11,8 @@ from _version import __version__
 
 
 __all__ = ['Requirements', 'Requirement', 'install_requires',
-           'tests_require', 'dependency_links', 'version'`]
+           'tests_require', 'dependency_links', 'version',
+           'get_version']
 
 
 def _check_arg(func):
@@ -37,13 +39,16 @@ def tests_require(dist, attr, val):
 def dependency_links(dist, attr, val):
     setattr(dist, attr, Requirements(val).dependency_links)
 
-@_check_arg
-def version(dist, attr, val):
+def get_version(path):
     version = None
     try:
         version =  re.search(r'__version__\s*=\s*[\'"]([\d.]+)[\'"]',
-                             open(val).read()).group(1)
+                             open(path).read()).group(1)
     except (IOError, AttributeError):
         pass
-    setattr(dist, attr, version)
+    return version
+
+@_check_arg
+def version(dist, attr, val):
+    setattr(dist, attr, get_version(val))
 
