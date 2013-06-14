@@ -24,7 +24,6 @@ setup(name='rexparse',
           'distutils.setup_keywords':
             'rexparse = rexparse:rexparse'
       },
-      install_requires=['bunch'],
       tests_require=['nose'],
       test_suite='nose.collector',
       packages=['rexparse'])

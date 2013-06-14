@@ -2,8 +2,6 @@ import re
 import string
 import urlparse
 
-import bunch
-
 
 PKG_PATH_RE = re.compile(r'^((?P<name>[\w-]+)(?P<version>-[\d.]+)?'
                          r'(?P<extention>[\w.]+)?)(@(?P<revision>.+))?$')
@@ -37,9 +35,9 @@ class Requirement(object):
         if self.egg is None:
             raise ValueError('egg required in %s to generate a requirement' %
                              (self._req))
-        req = self.egg.name
-        if self.egg.version is not None:
-            req += '==' + self.egg.version
+        req = self.egg['name']
+        if self.egg['version'] is not None:
+            req += '==' + self.egg['version']
         return req
 
     @property
@@ -63,7 +61,7 @@ class Requirement(object):
                 return None
             fragment = parts.path.split('#')[1]
         match = EGG_RE.match(fragment)
-        return None if match is None else bunch.bunchify(match.groupdict())
+        return None if match is None else match.groupdict()
 
     @property
     def transport(self):
@@ -103,10 +101,10 @@ class Requirement(object):
             if self.egg[attr] is not None:
                 return self.egg[attr]
             elif attr == 'version':
-                if ('-' in self.egg.name and
+                if ('-' in self.egg['name'] and
                     all([c in string.digits
-                         for c in self.egg.name.rsplit('-', 1)[-1]])):
-                    return self.egg.name.rsplit('-', 1)[-1]
+                         for c in self.egg['name'].rsplit('-', 1)[-1]])):
+                    return self.egg['name'].rsplit('-', 1)[-1]
         parts = urlparse.urlparse(self._req)
         match = PKG_PATH_RE.match(parts.path)
         return None if match is None else match.group(attr)
@@ -128,13 +126,12 @@ class Requirements(object):
         self.requirements = requirements
         if isinstance(self.requirements, basestring):
             self.requirements = open(self.requirements)
-        self.sections = bunch.bunchify(
-                            {'install':
-                                {'regex': re.compile(install_section_re),
-                                 'reqs': []},
-                              'test':
-                                 {'regex': re.compile(test_section_re),
-                                  'reqs': []}})
+        self.sections = {'install':
+                            {'regex': re.compile(install_section_re),
+                             'reqs': []},
+                          'test':
+                             {'regex': re.compile(test_section_re),
+                              'reqs': []}}
         self.cur_section = self.sections[default_section]
         self._parsed = False
         if parse:
@@ -142,17 +139,18 @@ class Requirements(object):
 
     @property
     def install_requires(self):
-        return [r.req for r in self.sections.install.reqs]
+        return [r.req for r in self.sections['install']['reqs']]
 
     @property
     def tests_require(self):
-        return [r.req for r in self.sections.test.reqs]
+        return [r.req for r in self.sections['test']['reqs']]
 
     @property
     def dependency_links(self):
         return filter(None,
-                      [r.dependency_link for r in self.sections.install.reqs] +
-                      [r.dependency_link for r in self.sections.test.reqs])
+                      [r.dependency_link for r in
+                       self.sections['install']['reqs']] +
+                      [r.dependency_link for r in self.sections['test']['reqs']])
 
     def parse(self):
         if self._parsed:
@@ -162,7 +160,7 @@ class Requirements(object):
             if len(line) == 0:
                 continue
             section_matches = [s for s in self.sections
-                               if self.sections[s].regex.match(line)
+                               if self.sections[s]['regex'].match(line)
                                   is not None]
             if len(section_matches) == 1:
                 self.cur_section = self.sections[section_matches[0]]
@@ -171,6 +169,6 @@ class Requirements(object):
                 raise RuntimeError('multiple section separators (%s)'
                                    'matched requirements file line %s' %
                                    (str(section_matches), line))
-            self.cur_section.reqs.append(Requirement(line))
+            self.cur_section['reqs'].append(Requirement(line))
         self._parsed = True
 
