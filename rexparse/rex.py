@@ -124,7 +124,7 @@ class Requirements(object):
     def __init__(self, requirements='requirements.txt',
                  default_section='install',
                  install_section_re=DEFAULT_INSTALL_SECTION_RE,
-                 test_section_re=DEFAULT_TEST_SECTION_RE):
+                 test_section_re=DEFAULT_TEST_SECTION_RE, parse=False):
         self.requirements = requirements
         if isinstance(self.requirements, basestring):
             self.requirements = open(self.requirements)
@@ -136,13 +136,16 @@ class Requirements(object):
                                  {'regex': re.compile(test_section_re),
                                   'reqs': []}})
         self.cur_section = self.sections[default_section]
+        self._parsed = False
+        if parse:
+            self.parse()
 
     @property
-    def install_reqs(self):
+    def install_requires(self):
         return [r.req for r in self.sections.install.reqs]
 
     @property
-    def test_reqs(self):
+    def tests_require(self):
         return [r.req for r in self.sections.test.reqs]
 
     @property
@@ -152,6 +155,8 @@ class Requirements(object):
                       [r.dependency_link for r in self.sections.test.reqs])
 
     def parse(self):
+        if self._parsed:
+            return
         for line in self.requirements:
             line = line.strip()
             if len(line) == 0:
@@ -167,5 +172,5 @@ class Requirements(object):
                                    'matched requirements file line %s' %
                                    (str(section_matches), line))
             self.cur_section.reqs.append(Requirement(line))
-
+        self._parsed = True
 

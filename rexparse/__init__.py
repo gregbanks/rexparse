@@ -10,34 +10,8 @@ from rex import Requirements, Requirement
 from _version import __version__
 
 
-__all__ = ['Requirements', 'Requirement', 'install_requires',
-           'tests_require', 'dependency_links', 'version',
-           'get_version']
+__all__ = ['Requirements', 'Requirement', 'get_version']
 
-
-def _check_arg(func):
-    @wraps(func)
-    def wrapped(dist, attr, val):
-        if not isinstance(val, basestring):
-            raise DistutilsSetupError('%r must be a string, got %r' %
-                                      (attr, type(val)))
-        if not os.path.isfile(val):
-            raise DistutilsSetupError('%s does not appear to be a file' %
-                                      (val))
-        return func(dist, attr, val)
-    return wrapped
-
-@_check_arg
-def install_requires(dist, attr, val):
-    setattr(dist, attr, Requirements(val).install_reqs)
-
-@_check_arg
-def tests_require(dist, attr, val):
-    setattr(dist, attr, Requirements(val).test_reqs)
-
-@_check_arg
-def dependency_links(dist, attr, val):
-    setattr(dist, attr, Requirements(val).dependency_links)
 
 def get_version(path):
     version = None
@@ -48,7 +22,37 @@ def get_version(path):
         pass
     return version
 
-@_check_arg
-def version(dist, attr, val):
-    setattr(dist, attr, get_version(val))
+
+def set_dist_attr(dist, attr, val):
+    if not isinstance(val, Requirements):
+        if not isinstance(val, basestring):
+            raise DistutilsSetupError('%r must be a string, got %r' %
+                                      (attr, type(val)))
+        if not os.path.isfile(val):
+            raise DistutilsSetupError('%s does not appear to be a file' %
+                                      (val))
+    if attr in ['install_requires', 'tests_require', 'dependency_links']:
+        if not isinstance(val, Requirements):
+            val = Requirements(val, parse=True)
+        setattr(dist, attr, getattr(val, attr))
+    elif attr == 'version':
+        setattr(dist, attr, get_version(val))
+    else:
+        raise DistutilsSetupError('unknown attr %s' % (attr))
+
+
+def rexparse(dist, attr, val):
+    if not isinstance(val, dict):
+        raise DistutilsSetupError('%s must be a dict with keys '
+                                  '"requirements_path" and (optionally) '
+                                  '"version_path"' % (attr))
+    valid_args = set(['requirements_path', 'version_path'])
+    if len(set(val.keys()) - valid_args) > 0:
+        raise DistutilsSetupError('got unknown arguments %r' %
+                                  (set(val.keys()) - valid_args))
+    if 'version_path' in val:
+        set_dist_attr(dist, 'version', val['version_path'])
+    reqs = Requirements(val['requirements_path'], parse=True)
+    for key in ['install_requires', 'tests_require', 'dependency_links']:
+        set_dist_attr(dist, key, reqs)
 

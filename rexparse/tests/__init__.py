@@ -111,15 +111,15 @@ class TestRequirements(unittest.TestCase):
         req_file = StringIO("blah")
         reqs = Requirements(req_file)
         reqs.parse()
-        self.assertEqual(1, len(reqs.install_reqs))
-        self.assertEqual(0, len(reqs.test_reqs))
+        self.assertEqual(1, len(reqs.install_requires))
+        self.assertEqual(0, len(reqs.tests_require))
 
     def test_change_default_section(self):
         req_file = StringIO("blah")
         reqs = Requirements(req_file, default_section='test')
         reqs.parse()
-        self.assertEqual(0, len(reqs.install_reqs))
-        self.assertEqual(1, len(reqs.test_reqs))
+        self.assertEqual(0, len(reqs.install_requires))
+        self.assertEqual(1, len(reqs.tests_require))
 
     def test_change_sections(self):
         req_file = StringIO("""
@@ -136,8 +136,8 @@ class TestRequirements(unittest.TestCase):
                             """)
         reqs = Requirements(req_file)
         reqs.parse()
-        self.assertEqual(2, len(reqs.install_reqs))
-        self.assertEqual(3, len(reqs.test_reqs))
+        self.assertEqual(2, len(reqs.install_requires))
+        self.assertEqual(3, len(reqs.tests_require))
 
     def test_dependency_links(self):
         req_file = StringIO(
@@ -153,6 +153,6 @@ class TestRequirements(unittest.TestCase):
             """)
         reqs = Requirements(req_file)
         reqs.parse()
-        self.assertEqual(3, len(reqs.install_reqs))
-        self.assertEqual(1, len(reqs.test_reqs))
+        self.assertEqual(3, len(reqs.install_requires))
+        self.assertEqual(1, len(reqs.tests_require))
         self.assertEqual(3, len(reqs.dependency_links))

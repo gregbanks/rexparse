@@ -20,8 +20,12 @@ setup(name='rexparse',
       author='Greg Banks',
       author_email='quaid@kuatowares.com',
       version=version,
+      entry_points={
+          'distutils.setup_keywords':
+            'rexparse = rexparse:rexparse'
+      },
       install_requires=['bunch'],
       tests_require=['nose'],
       test_suite='nose.collector',
-      packages=find_packages())
+      packages=['rexparse'])
 
