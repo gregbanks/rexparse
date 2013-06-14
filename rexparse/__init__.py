@@ -13,7 +13,6 @@ __all__ = ['Requirements', 'Requirement', 'install_requirements',
            'test_requirements', 'dependency_links']
 
 
-
 def _check_arg(func):
     @wraps(func)
     def wrapped(dist, attr, val):
@@ -37,4 +36,14 @@ def test_requirements(dist, attr, val):
 @_check_arg
 def dependency_links(dist, attr, val):
     setattr(dist, attr, Requirements(val).dependency_links)
+
+@_check_arg
+def version(dist, attr, val):
+    version = None
+    try:
+        version =  re.search(r'__version__\s*=\s*[\'"]([\d.]+)[\'"]',
+                             open(val).read()).group(1)
+    except (IOError, AttributeError):
+        pass
+    setattr(dist, attr, version)
 
