@@ -38,6 +38,10 @@ class TestRequirement(unittest.TestCase):
         self.assertEqual('1',
                          Requirement('rexparse==1').version)
         self.assertIsNone(Requirement('rexparse').version)
+        self.assertEqual(
+            '0.1.0dev',
+             Requirement('git+ssh://git@github.com/gregbanks/rexparse.git'
+                         '@master#egg=rexparse-0.1.0dev').version)
 
 
     def test_req_no_egg(self):
