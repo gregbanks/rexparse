@@ -7,7 +7,7 @@ PKG_PATH_RE = re.compile(r'^((?P<name>[\w-]+)(?P<version>-[\d.]+)?'
                          r'(?P<extention>[\w.]+)?)(@(?P<revision>.+))?$')
 PKG_RE = re.compile(r'^(?P<name>[\w-]+)((?P<comparator>>|<|==|<=|>=)'
                     r'(?P<version>[\d.]+))?$')
-EGG_RE = re.compile(r'(?i)^egg=(?P<name>[\w-]+)(-(?P<version>[\d.]+[a-z]*))?$')
+EGG_RE = re.compile(r'(?i)^egg=(?P<name>[\w-]+)(-(?P<version>([a-z])?[\d.]+[a-z]*))?$')
 
 DEFAULT_INSTALL_SECTION_RE = r'(?i)^#.*install.*'
 DEFAULT_TEST_SECTION_RE = r'(?i)^#.*test.*'

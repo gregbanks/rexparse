@@ -21,7 +21,7 @@ class TestRequirement(unittest.TestCase):
         self.assertEqual(
             '0.1.0',
              Requirement('git+ssh://git@github.com/gregbanks/rexparse.git'
-                         '@master#egg=rexparse-0.1.0').version)
+                         '@master#egg=texparse-0.1.0').version)
         self.assertIsNone(
              Requirement('git+ssh://git@github.com/gregbanks/rexparse.git'
                          '@master#egg=rexparse').version)
@@ -69,6 +69,11 @@ class TestRequirement(unittest.TestCase):
                           '@master#egg=rex-parse-1.a.1')
         self.assertIsNone(req.version)
         self.assertIsNone(req.name)
+
+        req = Requirement('git+ssh://git@github.com/gregbanks/rexparse.git'
+                          '@master#egg=rex-parse-v0.1.3')
+        self.assertEqual('v0.1.3', req.version)
+        self.assertEqual('rex-parse', req.name)
 
     def test_transport(self):
         self.assertEqual(
